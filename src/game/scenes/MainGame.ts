@@ -23,13 +23,15 @@ export class MainGame extends Scene {
     }
 
     create() {
+        this.add.image(0, 0, "bg_main").setOrigin(0, 0).setScale(0.4);
+
         this.cursors = this.input.keyboard?.createCursorKeys() as CursorKeys;
 
         this.shootGun = new ShootGun(this);
         this.enemys = new Enemys(this);
         this.monkey = new Monkey(this, this.cursors);
 
-        this.background = this.add.image(512, 384, "background");
+        // this.background = this.add.image(512, 384, "background");
 
         this.enemyCd = 2000;
         this.enemySpeed = 200;
