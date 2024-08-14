@@ -7,7 +7,7 @@ export class MainMenu extends Scene {
 
     create() {
         this.add.text(100, 200, "Monkey Survivors", {
-            fontSize: 100,
+            fontSize: 80,
             color: "#fff",
         });
 
