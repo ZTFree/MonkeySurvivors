@@ -2,12 +2,17 @@ import { Physics } from "phaser";
 import CursorKeys = Phaser.Types.Input.Keyboard.CursorKeys;
 
 export class Monkey {
+    static instance: Monkey;
     scene: Phaser.Scene;
     cursors: CursorKeys;
     monkey: Physics.Arcade.Image;
     speed: number;
+    health: number;
+    isInvincible: boolean;
 
     constructor(scene: Phaser.Scene, cursors: CursorKeys) {
+        if (Monkey.instance) return;
+        Monkey.instance = this;
         this.scene = scene;
         this.cursors = cursors;
         this.monkey = this.scene.physics.add
@@ -16,7 +21,9 @@ export class Monkey {
             .setOrigin(0.5, 0.5)
             .setCollideWorldBounds(true);
 
+        this.health = 3;
         this.speed = 300;
+        this.isInvincible = false;
     }
 
     move() {
@@ -38,9 +45,33 @@ export class Monkey {
     }
 
     getX() {
-        return this.monkey.x;
+        return this.monkey?.x;
     }
     getY() {
-        return this.monkey.y;
+        return this.monkey?.y;
+    }
+
+    getMonkey() {
+        return this.monkey;
+    }
+
+    getHurt(value: number) {
+        if (!this.isInvincible) this.health -= value;
+        if (this.health <= 0) {
+            this.die();
+        } else {
+            this.isInvincible = true;
+            setTimeout(() => {
+                this.isInvincible = false;
+            }, 1000);
+        }
+    }
+
+    addHealth() {
+        this.health = Math.min(3, this.health + 1);
+    }
+
+    die() {
+        this.scene.scene.start("GameOver");
     }
 }

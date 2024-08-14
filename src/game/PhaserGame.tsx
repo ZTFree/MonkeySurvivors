@@ -7,41 +7,43 @@ export interface IRefPhaserGame {
     scene: Phaser.Scene | null;
 }
 
-export const PhaserGame = forwardRef<IRefPhaserGame, any>(
-    function PhaserGame(ref, props) {
-        const game = useRef<Phaser.Game | null>(null!);
+export const PhaserGame = forwardRef<IRefPhaserGame, {}>(function PhaserGame(
+    {},
+    ref,
+) {
+    const game = useRef<Phaser.Game | null>(null!);
 
-        useLayoutEffect(() => {
-            if (game.current === null) {
-                game.current = StartGame("game-container");
+    useLayoutEffect(() => {
+        if (game.current === null) {
+            game.current = StartGame("game-container");
 
-                if (!ref) {
-                    ref = { game: game.current, scene: null };
-                }
+            if (typeof ref === "function") {
+                ref({ game: game.current, scene: null });
+            } else if (ref) {
+                ref.current = { game: game.current, scene: null };
             }
+        }
 
-            return () => {
-                if (game.current) {
-                    game.current.destroy(true);
-                    game.current = null;
-                }
-            };
-        }, [ref]);
+        return () => {
+            if (game.current) {
+                game.current.destroy(true);
+                game.current = null;
+            }
+        };
+    }, [ref]);
 
-        useEffect(() => {
-            EventBus.on("current-scene-ready", (scene: Phaser.Scene) => {
-                if (!ref) {
-                    ref = {
-                        game: game.current,
-                        scene: scene,
-                    };
-                }
-            });
-            return () => {
-                EventBus.removeListener("current-scene-ready");
-            };
-        }, [ref]);
+    useEffect(() => {
+        EventBus.on("current-scene-ready", (scene_instance: Phaser.Scene) => {
+            if (typeof ref === "function") {
+                ref({ game: game.current, scene: scene_instance });
+            } else if (ref) {
+                ref.current = { game: game.current, scene: scene_instance };
+            }
+        });
+        return () => {
+            EventBus.removeListener("current-scene-ready");
+        };
+    }, [ref]);
 
-        return <div id="game-container" />;
-    },
-);
+    return <div id="game-container" />;
+});

@@ -25,7 +25,6 @@ export class Preloader extends Scene {
         this.load.setPath("assets");
 
         this.load.image("logo", "logo.png");
-        this.load.image("star", "star.png");
 
         this.load.image("monkey", "/img/game/monkey.png");
         this.load.image("dog", "/img/game/dog.png");
@@ -35,9 +34,12 @@ export class Preloader extends Scene {
 
         this.load.image("bg_main", "/img/bg/bg_main.png");
 
+        // 音效
         this.load.audio("shit_hit", "/sound/shit_hit.mp3");
         this.load.audio("hover", "/sound/hover.mp3");
         this.load.audio("confirm", "/sound/confirm.mp3");
+        this.load.audio("enemy_death", "/sound/enemy_death.mp3");
+        this.load.audio("heal", "/sound/heal.mp3");
     }
 
     create() {

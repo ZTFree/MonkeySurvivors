@@ -1,6 +1,7 @@
 import Group = Phaser.Physics.Arcade.Group;
 import GameObject = Phaser.GameObjects.GameObject;
 import { dogImgSize } from "../global/imgSize.ts";
+import { Bananas } from "./Banana.ts";
 
 interface EnemyProps {
     hp: number;
@@ -35,7 +36,7 @@ export class Enemys {
     }
 
     createEnemy(opt: EnemyOption) {
-        new Enemy(this.enemyProps, opt, this.enemyGroup);
+        new Enemy(this.enemyProps, opt, this.enemyGroup, this.scene);
     }
 
     AllTrack(x: number, y: number) {
@@ -71,18 +72,22 @@ class Enemy {
     speed: number;
     opt: EnemyOption;
     gameObj: GameObject;
+    scene: Phaser.Scene;
 
-    constructor(props: EnemyProps, opt: EnemyOption, group: Group) {
+    constructor(
+        props: EnemyProps,
+        opt: EnemyOption,
+        group: Group,
+        scene: Phaser.Scene,
+    ) {
         this.hp = props.hp;
         this.atk = props.atk;
         this.speed = props.speed;
         this.opt = opt;
+        this.scene = scene;
 
         const { x, y, name, angle } = opt;
-        const enemy = group
-            .create(x, y, name)
-            .setDisplaySize(dogImgSize.width, dogImgSize.height)
-            .setOrigin(0.5, 0.5);
+        const enemy = group.create(x, y, name).setOrigin(0.5, 0.5);
         this.gameObj = enemy;
 
         enemy.body.getHurt = this.getHurt.bind(this);
@@ -101,6 +106,14 @@ class Enemy {
     }
 
     die() {
+        this.scene.sound.play("enemy_death", { volume: 0.3 });
+        if (Bananas.instance) {
+            const isCreate = Math.random() > 0.5;
+
+            if (isCreate) {
+                Bananas.instance.createBanan(this.gameObj.x, this.gameObj.y);
+            }
+        }
         this.gameObj.destroy();
     }
 }

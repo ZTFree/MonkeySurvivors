@@ -7,14 +7,18 @@ interface GunOption {
 }
 
 export class ShootGun {
+    static instance: ShootGun;
     shootCd: number;
     shootSpeed: number;
     shootAtk: number;
     shootTime: number;
     scence: Phaser.Scene;
     bulletGroup: Group;
+    grade: number;
 
     constructor(scence: Phaser.Scene, opt?: GunOption) {
+        if (ShootGun.instance) return;
+        ShootGun.instance = this;
         this.scence = scence;
         if (opt) {
             this.shootCd = opt.shootCd;
@@ -25,6 +29,7 @@ export class ShootGun {
             this.shootSpeed = 600;
             this.shootAtk = 5;
         }
+        this.grade = 1;
         this.shootTime = 0;
         this.bulletGroup = this.scence.physics.add.group({ immovable: false });
     }
@@ -32,11 +37,9 @@ export class ShootGun {
     shoot(opt: { name: string; x: number; y: number; angle: number }) {
         const { name, x, y, angle } = opt;
 
-        const bullet: Phaser.Physics.Arcade.Image = this.bulletGroup.create(
-            x,
-            y,
-            name,
-        );
+        const bullet: Phaser.Physics.Arcade.Image = this.bulletGroup
+            .create(x, y, name)
+            .setDepth(1000);
 
         this.scence.physics.add.existing(bullet);
         bullet.setCollideWorldBounds(true, 1, 1, true);
@@ -66,5 +69,13 @@ export class ShootGun {
                 return true;
             }
         }
+    }
+
+    upgrade() {
+        this.grade++;
+        const g = this.grade - 1;
+        this.shootCd = Math.max(500, 1000 - g * 50);
+        this.shootSpeed = Math.min(1000, 600 + g * 40);
+        this.shootAtk = Math.min(20, 5 + g / 2);
     }
 }

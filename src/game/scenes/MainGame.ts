@@ -1,11 +1,11 @@
 import { GameObjects, Scene } from "phaser";
-
 import { EventBus } from "../EventBus";
 import CursorKeys = Phaser.Types.Input.Keyboard.CursorKeys;
 import GameObject = Phaser.GameObjects.GameObject;
 import { Enemys } from "../../utils/Enemy.ts";
 import { ShootGun } from "../../utils/ShootGun.ts";
 import { Monkey } from "../../utils/Monkey.ts";
+import { Bananas } from "../../utils/Banana.ts";
 
 export class MainGame extends Scene {
     background: GameObjects.Image;
@@ -14,6 +14,7 @@ export class MainGame extends Scene {
     cursors: CursorKeys;
     shootGun: ShootGun;
     enemys: Enemys;
+    bananas: Bananas;
     enemyTime: number;
     enemyCd: number;
     enemySpeed: number;
@@ -24,34 +25,54 @@ export class MainGame extends Scene {
 
     create() {
         this.add.image(0, 0, "bg_main").setOrigin(0, 0).setScale(0.4);
-
         this.cursors = this.input.keyboard?.createCursorKeys() as CursorKeys;
-
         this.shootGun = new ShootGun(this);
         this.enemys = new Enemys(this);
         this.monkey = new Monkey(this, this.cursors);
-
-        // this.background = this.add.image(512, 384, "background");
+        this.bananas = new Bananas(this);
 
         this.enemyCd = 2000;
         this.enemySpeed = 200;
 
+        this.initPhysicsBehavior();
+        EventBus.emit("current-scene-ready", this);
+    }
+
+    initPhysicsBehavior() {
         // 子弹与敌人的交叠
         this.physics.add.overlap(
             this.shootGun.bulletGroup,
             this.enemys.enemyGroup,
-            (shit, enemyBody) => {
-                shit.destroy();
-                enemyBody.body.getHurt(this.shootGun.shootAtk);
+            (bullet, enemy) => {
+                bullet.destroy();
+                enemy.body.getHurt(this.shootGun.shootAtk);
                 this.sound.play("shit_hit");
             },
         );
 
+        // 敌人与玩家的交叠
+        this.physics.add.overlap(
+            this.enemys.enemyGroup,
+            this.monkey.getMonkey(),
+            (monkey, enemy) => {
+                this.monkey.getHurt(1);
+                console.log(this.scene);
+            },
+        );
+
+        // 香蕉与玩家的交叠
+        this.physics.add.overlap(
+            this.monkey.getMonkey(),
+            this.bananas.BananaGroup,
+            (monkey, banana) => {
+                banana.body.eaten();
+            },
+        );
+
+        // 子弹接触边界销毁
         this.physics.world.on("worldbounds", (body: GameObject) =>
             body.collisionWorldBounds(),
         );
-
-        EventBus.emit("current-scene-ready", this);
     }
 
     update(time: number) {
@@ -122,7 +143,11 @@ export class MainGame extends Scene {
         this.enemys.AllTrack(this.monkey.getX(), this.monkey.getY());
     }
 
-    // changeScene() {
-    //     this.scene.start("Game");
-    // }
+    changeScene(str: string) {
+        // this.game.scene.destroy();
+        // this.game.destroy(true, true);
+        // setTimeout(() => {
+        //     StartGame("game-container");
+        // }, 100);
+    }
 }

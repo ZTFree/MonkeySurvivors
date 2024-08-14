@@ -1,6 +1,7 @@
 import { AUTO, Scene } from "phaser";
 import GameObject = Phaser.GameObjects.GameObject;
 import Pointer = Phaser.Input.Pointer;
+import { EventBus } from "../EventBus.ts";
 
 export class MainMenu extends Scene {
     constructor() {
@@ -10,16 +11,38 @@ export class MainMenu extends Scene {
     create() {
         this.add.image(0, 0, "bg_main").setOrigin(0, 0).setScale(1);
         this.add.image(280, 640, "logo").setOrigin(0, 0).setScale(1);
-        this.add.text(190, 80, "Monkey Survivors", {
-            font: "80px blob",
-            color: "#31fd2c",
-        });
+        this.add
+            .text(512, 80, "Monkey", {
+                font: "80px blob",
+                fontFamily: "Arial Black",
+                color: "#ffffff",
+                stroke: "#000000",
+                strokeThickness: 8,
+                align: "center",
+            })
+            .setOrigin(0.5);
+
+        this.add
+            .text(512, 180, "Survivors", {
+                font: "80px blob",
+                fontFamily: "Arial Black",
+                color: "#ffffff",
+                stroke: "#000000",
+                strokeThickness: 8,
+                align: "center",
+            })
+            .setOrigin(0.5);
 
         const startBtn = this.add
-            .text(420, 360, "Start", {
+            .text(512, 420, "Start", {
                 font: "80px blob",
-                color: "#31fd2c",
+                fontFamily: "Arial Black",
+                color: "#ffffff",
+                stroke: "#000000",
+                strokeThickness: 8,
+                align: "center",
             })
+            .setOrigin(0.5)
             .setInteractive();
 
         startBtn.on(
@@ -34,9 +57,8 @@ export class MainMenu extends Scene {
         startBtn.on(
             "mouseover",
             () => {
-                startBtn.setColor("#fa0b13");
                 this.sound.play("hover");
-                // this.sound.play("confirm");
+                startBtn.setColor("#fa0b13");
             },
             this,
         );
@@ -44,7 +66,7 @@ export class MainMenu extends Scene {
         startBtn.on(
             "mouseout",
             () => {
-                startBtn.setColor("#31fd2c");
+                startBtn.setColor("#ffffff");
             },
             this,
         );
@@ -71,11 +93,13 @@ export class MainMenu extends Scene {
             },
             this,
         );
+
+        EventBus.emit("current-scene-ready", this);
     }
 
     update() {}
 
-    changeScene() {
-        this.scene.start("Game");
+    changeScene(str: string) {
+        this.scene.start(str);
     }
 }
