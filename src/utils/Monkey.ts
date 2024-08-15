@@ -56,7 +56,10 @@ export class Monkey {
     }
 
     getHurt(value: number) {
-        if (!this.isInvincible) this.health -= value;
+        if (!this.isInvincible) {
+            this.scene.sound.play("m_hurt");
+            this.health -= value;
+        }
         if (this.health <= 0) {
             this.die();
         } else {

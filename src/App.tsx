@@ -9,9 +9,14 @@ function App() {
     //     console.log(phaserRef.current);
     // };
 
+    const handle = () => {
+        console.log(phaserRef.current?.scene?.registry.get("score"));
+    };
+
     return (
         <div id="app">
             <PhaserGame ref={phaserRef} />
+            <button onClick={handle}>click</button>
             {/*<button onClick={() => jump("GameOver")} style={{ color: "black" }}>*/}
             {/*    Btn GameOver*/}
             {/*</button>*/}

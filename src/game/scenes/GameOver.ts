@@ -22,6 +22,19 @@ export class GameOver extends Scene {
             .setOrigin(0.5)
             .setDepth(100);
 
+        const ScoreShow = this.add
+            .text(512, 384, `Score: ${this.game.registry.get("score") || 0}`, {
+                fontFamily: "Arial Black",
+                fontSize: 40,
+                color: "#ffffff",
+                stroke: "#000000",
+                strokeThickness: 8,
+                align: "center",
+            })
+            .setOrigin(0.5)
+            .setDepth(100)
+            .setInteractive();
+
         // const againBtn = this.add
         //     .text(512, 384, "Try Again", {
         //         fontFamily: "Arial Black",

@@ -16,8 +16,7 @@ export class MainGame extends Scene {
     enemys: Enemys;
     bananas: Bananas;
     enemyTime: number;
-    enemyCd: number;
-    enemySpeed: number;
+    gameUI: any;
 
     constructor() {
         super("MainGame");
@@ -31,13 +30,33 @@ export class MainGame extends Scene {
         this.monkey = new Monkey(this, this.cursors);
         this.bananas = new Bananas(this);
 
-        this.enemyCd = 2000;
-        this.enemySpeed = 200;
+        this.game.registry.set("score", 0);
 
         this.initPhysicsBehavior();
         EventBus.emit("current-scene-ready", this);
     }
 
+    getEnemyCd() {
+        const score = this.game.registry.get("score");
+
+        return Math.max(500, 2000 - score * 100);
+    }
+
+    update(time: number) {
+        this.renderScoreBar();
+        this.gunShoot(time);
+
+        if (!this.enemyTime) this.enemyTime = time;
+        if (time - this.enemyTime > this.getEnemyCd()) {
+            this.enemyTime = time;
+            this.createEnemy();
+        }
+
+        this.updateEnemy();
+        this.monkey.move();
+    }
+
+    // 物理交互
     initPhysicsBehavior() {
         // 子弹与敌人的交叠
         this.physics.add.overlap(
@@ -56,7 +75,6 @@ export class MainGame extends Scene {
             this.monkey.getMonkey(),
             (monkey, enemy) => {
                 this.monkey.getHurt(1);
-                console.log(this.scene);
             },
         );
 
@@ -73,19 +91,6 @@ export class MainGame extends Scene {
         this.physics.world.on("worldbounds", (body: GameObject) =>
             body.collisionWorldBounds(),
         );
-    }
-
-    update(time: number) {
-        this.gunShoot(time);
-
-        if (!this.enemyTime) this.enemyTime = time;
-        if (time - this.enemyTime > this.enemyCd) {
-            this.enemyTime = time;
-            this.createEnemy();
-        }
-
-        this.updateEnemy();
-        this.monkey.move();
     }
 
     // 射击
@@ -143,11 +148,38 @@ export class MainGame extends Scene {
         this.enemys.AllTrack(this.monkey.getX(), this.monkey.getY());
     }
 
-    changeScene(str: string) {
-        // this.game.scene.destroy();
-        // this.game.destroy(true, true);
-        // setTimeout(() => {
-        //     StartGame("game-container");
-        // }, 100);
+    renderScoreBar() {
+        const score = this.game.registry.get("score");
+        if (!this.gameUI) {
+            this.gameUI = {};
+            this.gameUI.scoreBar = this.add
+                .text(20, 20, `Score: ${score}`, {
+                    fontFamily: "Arial Black",
+                    fontSize: 40,
+                    color: "#ffffff",
+                    stroke: "#000000",
+                    strokeThickness: 8,
+                    align: "center",
+                })
+                .setOrigin(0, 0)
+                .setDepth(100);
+
+            this.gameUI.healthBar = this.add
+                .text(20, 80, `Health: ${Monkey.instance.health}`, {
+                    fontFamily: "Arial Black",
+                    fontSize: 40,
+                    color: "#ffffff",
+                    stroke: "#000000",
+                    strokeThickness: 8,
+                    align: "center",
+                })
+                .setOrigin(0, 0)
+                .setDepth(100);
+        } else {
+            this.gameUI.scoreBar.setText(`Score: ${score}`);
+            this.gameUI.healthBar.setText(`Health: ${Monkey.instance.health}`);
+        }
     }
+
+    changeScene() {}
 }

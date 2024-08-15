@@ -106,7 +106,9 @@ class Enemy {
     }
 
     die() {
-        this.scene.sound.play("enemy_death", { volume: 0.3 });
+        this.scene.sound.play("enemy_death", { volume: 0.5 });
+        const score = this.scene.registry.get("score");
+        this.scene.game.registry.set("score", score + 1);
         if (Bananas.instance) {
             const isCreate = Math.random() > 0.5;
 
