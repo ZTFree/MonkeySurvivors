@@ -136,7 +136,7 @@ export class MainGame extends Scene {
             y = len * Math.sin(randomAngle) + this.monkey.getY();
 
         this.enemys.createEnemy({
-            name: "dog",
+            name: Math.random() > 0.5 ? "dog" : "bat",
             x,
             y,
             angle: randomAngle - 180,
