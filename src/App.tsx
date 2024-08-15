@@ -16,7 +16,7 @@ function App() {
     return (
         <div id="app">
             <PhaserGame ref={phaserRef} />
-            <button onClick={handle}>click</button>
+            {/*<button onClick={handle}>click</button>*/}
             {/*<button onClick={() => jump("GameOver")} style={{ color: "black" }}>*/}
             {/*    Btn GameOver*/}
             {/*</button>*/}
