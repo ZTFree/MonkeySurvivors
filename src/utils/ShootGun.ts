@@ -17,7 +17,6 @@ export class ShootGun {
     grade: number;
 
     constructor(scence: Phaser.Scene, opt?: GunOption) {
-        if (ShootGun.instance) return;
         ShootGun.instance = this;
         this.scence = scence;
         if (opt) {

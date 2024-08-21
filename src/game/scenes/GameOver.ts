@@ -10,99 +10,16 @@ export class GameOver extends Scene {
 
     create() {
         this.add.image(0, 0, "bg_main").setOrigin(0, 0).setScale(0.4);
-        const gameOverText = this.add
-            .text(512, 284, "Game Over", {
-                fontFamily: "Arial Black",
-                fontSize: 80,
-                color: "#ffffff",
-                stroke: "#000000",
-                strokeThickness: 8,
-                align: "center",
-            })
-            .setOrigin(0.5)
-            .setDepth(100);
+        this.renderTitle();
+        this.renderScore();
+        this.renderTryBtn();
+        this.renderHomeBtn();
+        this.bindInputEvent();
 
-        const ScoreShow = this.add
-            .text(512, 384, `Score: ${this.game.registry.get("score") || 0}`, {
-                fontFamily: "Arial Black",
-                fontSize: 40,
-                color: "#ffffff",
-                stroke: "#000000",
-                strokeThickness: 8,
-                align: "center",
-            })
-            .setOrigin(0.5)
-            .setDepth(100)
-            .setInteractive();
+        EventBus.emit("current-scene-ready", this);
+    }
 
-        // const againBtn = this.add
-        //     .text(512, 384, "Try Again", {
-        //         fontFamily: "Arial Black",
-        //         fontSize: 40,
-        //         color: "#ffffff",
-        //         stroke: "#000000",
-        //         strokeThickness: 8,
-        //         align: "center",
-        //     })
-        //     .setOrigin(0.5)
-        //     .setDepth(100)
-        //     .setInteractive();
-        //
-        // againBtn.on("click", () => {
-        //     this.scene.start("MainGame");
-        // });
-        //
-        // againBtn.on(
-        //     "mouseover",
-        //     () => {
-        //         this.sound.play("hover");
-        //         againBtn.setColor("#fa0b13");
-        //     },
-        //     this,
-        // );
-        //
-        // againBtn.on(
-        //     "mouseout",
-        //     () => {
-        //         againBtn.setColor("#ffffff");
-        //     },
-        //     this,
-        // );
-        //
-        // const backHomeBtn = this.add
-        //     .text(512, 484, "Back Home", {
-        //         fontFamily: "Arial Black",
-        //         fontSize: 40,
-        //         color: "#ffffff",
-        //         stroke: "#000000",
-        //         strokeThickness: 8,
-        //         align: "center",
-        //     })
-        //     .setOrigin(0.5)
-        //     .setDepth(100)
-        //     .setInteractive();
-        //
-        // backHomeBtn.on("click", () => {
-        //     this.scene.start("MainMenu");
-        // });
-        //
-        // backHomeBtn.on(
-        //     "mouseover",
-        //     () => {
-        //         this.sound.play("hover");
-        //         backHomeBtn.setColor("#fa0b13");
-        //     },
-        //     this,
-        // );
-        //
-        // backHomeBtn.on(
-        //     "mouseout",
-        //     () => {
-        //         backHomeBtn.setColor("#ffffff");
-        //     },
-        //     this,
-        // );
-
+    bindInputEvent() {
         this.input.on(
             "gameobjectup",
             function (pointer: Pointer, gameObject: GameObject) {
@@ -125,8 +42,104 @@ export class GameOver extends Scene {
             },
             this,
         );
+    }
 
-        EventBus.emit("current-scene-ready", this);
+    renderTitle() {
+        this.add
+            .text(512, 284, "Game Over", {
+                fontFamily: "Arial Black",
+                fontSize: 80,
+                color: "#ffffff",
+                stroke: "#000000",
+                strokeThickness: 8,
+                align: "center",
+            })
+            .setOrigin(0.5)
+            .setDepth(100);
+    }
+    renderScore() {
+        this.add
+            .text(512, 384, `Score: ${this.game.registry.get("score") || 0}`, {
+                fontFamily: "Arial Black",
+                fontSize: 40,
+                color: "#ffffff",
+                stroke: "#000000",
+                strokeThickness: 8,
+                align: "center",
+            })
+            .setOrigin(0.5)
+            .setDepth(100)
+            .setInteractive();
+    }
+    renderTryBtn() {
+        const againBtn = this.add
+            .text(512, 484, "Try Again", {
+                fontFamily: "Arial Black",
+                fontSize: 40,
+                color: "#ffffff",
+                stroke: "#000000",
+                strokeThickness: 8,
+                align: "center",
+            })
+            .setOrigin(0.5)
+            .setDepth(100)
+            .setInteractive();
+
+        againBtn.on("click", () => {
+            this.scene.start("MainGame");
+        });
+
+        againBtn.on(
+            "mouseover",
+            () => {
+                this.sound.play("hover");
+                againBtn.setColor("#fa0b13");
+            },
+            this,
+        );
+
+        againBtn.on(
+            "mouseout",
+            () => {
+                againBtn.setColor("#ffffff");
+            },
+            this,
+        );
+    }
+    renderHomeBtn() {
+        const backHomeBtn = this.add
+            .text(512, 584, "Back Home", {
+                fontFamily: "Arial Black",
+                fontSize: 40,
+                color: "#ffffff",
+                stroke: "#000000",
+                strokeThickness: 8,
+                align: "center",
+            })
+            .setOrigin(0.5)
+            .setDepth(100)
+            .setInteractive();
+
+        backHomeBtn.on("click", () => {
+            this.scene.start("MainMenu");
+        });
+
+        backHomeBtn.on(
+            "mouseover",
+            () => {
+                this.sound.play("hover");
+                backHomeBtn.setColor("#fa0b13");
+            },
+            this,
+        );
+
+        backHomeBtn.on(
+            "mouseout",
+            () => {
+                backHomeBtn.setColor("#ffffff");
+            },
+            this,
+        );
     }
 
     changeScene(str: string) {

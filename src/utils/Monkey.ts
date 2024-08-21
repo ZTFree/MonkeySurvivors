@@ -11,7 +11,6 @@ export class Monkey {
     isInvincible: boolean;
 
     constructor(scene: Phaser.Scene, cursors: CursorKeys) {
-        if (Monkey.instance) return;
         Monkey.instance = this;
         this.scene = scene;
         this.cursors = cursors;

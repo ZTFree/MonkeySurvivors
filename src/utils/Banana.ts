@@ -8,13 +8,12 @@ export class Bananas {
     BananaGroup: Group;
     scene: Phaser.Scene;
     constructor(scene: Phaser.Scene) {
-        if (Bananas.instance) return;
         Bananas.instance = this;
         this.scene = scene;
         this.BananaGroup = this.scene.physics.add.group({ immovable: true });
     }
 
-    createBanan(x: number, y: number) {
+    createBanana(x: number, y: number) {
         new Banana(x, y, this.BananaGroup, this.scene);
     }
 }

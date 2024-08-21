@@ -34,26 +34,21 @@ export class MainGame extends Scene {
 
         this.initPhysicsBehavior();
         EventBus.emit("current-scene-ready", this);
-    }
 
-    getEnemyCd() {
-        const score = this.game.registry.get("score");
-
-        return Math.max(500, 2000 - score * 100);
+        this.renderScoreBar();
     }
 
     update(time: number) {
-        this.renderScoreBar();
+        this.updateScoreBar();
         this.gunShoot(time);
+        this.monkey.move();
 
         if (!this.enemyTime) this.enemyTime = time;
         if (time - this.enemyTime > this.getEnemyCd()) {
             this.enemyTime = time;
-            this.createEnemy();
+            this.enemys.createEnemy();
         }
-
-        this.updateEnemy();
-        this.monkey.move();
+        this.enemys.AllTrack(this.monkey.getX(), this.monkey.getY());
     }
 
     // 物理交互
@@ -93,7 +88,47 @@ export class MainGame extends Scene {
         );
     }
 
-    // 射击
+    renderScoreBar() {
+        const score = this.game.registry.get("score");
+
+        this.gameUI = {};
+        this.gameUI.scoreBar = this.add
+            .text(20, 20, `Score: ${score}`, {
+                fontFamily: "Arial Black",
+                fontSize: 40,
+                color: "#ffffff",
+                stroke: "#000000",
+                strokeThickness: 8,
+                align: "center",
+            })
+            .setOrigin(0, 0)
+            .setDepth(100);
+
+        this.gameUI.healthBar = this.add
+            .text(20, 80, `Health: ${Monkey.instance.health}`, {
+                fontFamily: "Arial Black",
+                fontSize: 40,
+                color: "#ffffff",
+                stroke: "#000000",
+                strokeThickness: 8,
+                align: "center",
+            })
+            .setOrigin(0, 0)
+            .setDepth(100);
+    }
+
+    updateScoreBar() {
+        const score = this.game.registry.get("score");
+        const health = this.monkey.health;
+        this.gameUI.scoreBar.setText(`Score: ${score}`);
+        this.gameUI.healthBar.setText(`Health: ${health}`);
+    }
+
+    getEnemyCd() {
+        const score = this.game.registry.get("score");
+        return Math.max(500, 2000 - score * 100);
+    }
+
     gunShoot(time: number) {
         if (this.shootGun.checkInCd(time)) return;
         let angle: number = 0;
@@ -128,58 +163,7 @@ export class MainGame extends Scene {
         });
     }
 
-    // 创建敌人
-    createEnemy() {
-        const randomAngle = 360 * Math.random(),
-            len = 500 + 200 * Math.random(),
-            x = len * Math.cos(randomAngle) + this.monkey.getX(),
-            y = len * Math.sin(randomAngle) + this.monkey.getY();
-
-        this.enemys.createEnemy({
-            name: Math.random() > 0.5 ? "dog" : "bat",
-            x,
-            y,
-            angle: randomAngle - 180,
-        });
+    changeScene(str: string) {
+        this.scene.start(str);
     }
-
-    // 更新敌人追踪方向
-    updateEnemy() {
-        this.enemys.AllTrack(this.monkey.getX(), this.monkey.getY());
-    }
-
-    renderScoreBar() {
-        const score = this.game.registry.get("score");
-        if (!this.gameUI) {
-            this.gameUI = {};
-            this.gameUI.scoreBar = this.add
-                .text(20, 20, `Score: ${score}`, {
-                    fontFamily: "Arial Black",
-                    fontSize: 40,
-                    color: "#ffffff",
-                    stroke: "#000000",
-                    strokeThickness: 8,
-                    align: "center",
-                })
-                .setOrigin(0, 0)
-                .setDepth(100);
-
-            this.gameUI.healthBar = this.add
-                .text(20, 80, `Health: ${Monkey.instance.health}`, {
-                    fontFamily: "Arial Black",
-                    fontSize: 40,
-                    color: "#ffffff",
-                    stroke: "#000000",
-                    strokeThickness: 8,
-                    align: "center",
-                })
-                .setOrigin(0, 0)
-                .setDepth(100);
-        } else {
-            this.gameUI.scoreBar.setText(`Score: ${score}`);
-            this.gameUI.healthBar.setText(`Health: ${Monkey.instance.health}`);
-        }
-    }
-
-    changeScene() {}
 }

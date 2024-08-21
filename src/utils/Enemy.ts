@@ -2,6 +2,7 @@ import Group = Phaser.Physics.Arcade.Group;
 import GameObject = Phaser.GameObjects.GameObject;
 import { dogImgSize } from "../global/imgSize.ts";
 import { Bananas } from "./Banana.ts";
+import { Monkey } from "./Monkey.ts";
 
 interface EnemyProps {
     hp: number;
@@ -11,9 +12,9 @@ interface EnemyProps {
 
 interface EnemyOption {
     name?: string;
-    x: number;
-    y: number;
-    angle: number;
+    x?: number;
+    y?: number;
+    angle?: number;
 }
 
 const defProps: EnemyProps = {
@@ -35,8 +36,22 @@ export class Enemys {
         this.scene.physics.add.collider(this.enemyGroup, this.enemyGroup);
     }
 
-    createEnemy(opt: EnemyOption) {
-        new Enemy(this.enemyProps, opt, this.enemyGroup, this.scene);
+    // 创建敌人
+    createEnemy(opt?: EnemyOption) {
+        const randomAngle = 360 * Math.random(),
+            len = 500 + 200 * Math.random(),
+            x = len * Math.cos(randomAngle) + Monkey.instance.getX(),
+            y = len * Math.sin(randomAngle) + Monkey.instance.getY();
+
+        const option: EnemyOption = {
+            name: Math.random() > 0.5 ? "dog" : "bat",
+            x,
+            y,
+            angle: randomAngle - 180,
+            ...opt,
+        };
+        // this.createEnemy();
+        new Enemy(this.enemyProps, option, this.enemyGroup, this.scene);
     }
 
     AllTrack(x: number, y: number) {
@@ -113,7 +128,7 @@ class Enemy {
             const isCreate = Math.random() > 0.5;
 
             if (isCreate) {
-                Bananas.instance.createBanan(this.gameObj.x, this.gameObj.y);
+                Bananas.instance.createBanana(this.gameObj.x, this.gameObj.y);
             }
         }
         this.gameObj.destroy();

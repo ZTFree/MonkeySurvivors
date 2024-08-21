@@ -97,7 +97,7 @@ export class MainMenu extends Scene {
         EventBus.emit("current-scene-ready", this);
     }
 
-    update() {}
+    // update() {}
 
     changeScene(str: string) {
         this.scene.start(str);
