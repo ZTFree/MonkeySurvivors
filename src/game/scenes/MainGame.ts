@@ -6,6 +6,10 @@ import { Enemys } from "../../utils/Enemy.ts";
 import { ShootGun } from "../../utils/ShootGun.ts";
 import { Monkey } from "../../utils/Monkey.ts";
 import { Bananas } from "../../utils/Banana.ts";
+import { gameConfig } from "../main.ts";
+import { GroupToOne } from "../system/DetectionSystems.ts";
+import { getClosestOneAngleOfGroup } from "../system/ComputeSystem.ts";
+import { gunShootCloset } from "../system/FightSystem.ts";
 
 export class MainGame extends Scene {
     background: GameObjects.Image;
@@ -28,6 +32,10 @@ export class MainGame extends Scene {
         this.shootGun = new ShootGun(this);
         this.enemys = new Enemys(this);
         this.monkey = new Monkey(this, this.cursors);
+        this.monkey.renderMonkey(
+            (gameConfig.width as number) / 2,
+            (gameConfig.height as number) / 2,
+        );
         this.bananas = new Bananas(this);
 
         this.game.registry.set("score", 0);
@@ -38,9 +46,20 @@ export class MainGame extends Scene {
         this.renderScoreBar();
     }
 
+    // renderSence(){
+    //
+    // }
+
     update(time: number) {
         this.updateScoreBar();
-        this.gunShoot(time);
+        gunShootCloset(
+            this.monkey.getX(),
+            this.monkey.getY(),
+            this.shootGun,
+            this.enemys.enemyGroup,
+            time,
+        );
+
         this.monkey.move();
 
         if (!this.enemyTime) this.enemyTime = time;
@@ -48,7 +67,12 @@ export class MainGame extends Scene {
             this.enemyTime = time;
             this.enemys.createEnemy();
         }
-        this.enemys.AllTrack(this.monkey.getX(), this.monkey.getY());
+
+        GroupToOne(
+            this.monkey.getX(),
+            this.monkey.getY(),
+            this.enemys.enemyGroup,
+        );
     }
 
     // 物理交互
@@ -59,7 +83,7 @@ export class MainGame extends Scene {
             this.enemys.enemyGroup,
             (bullet, enemy) => {
                 bullet.destroy();
-                enemy.body.getHurt(this.shootGun.shootAtk);
+                enemy.getHurt(this.shootGun.shootAtk);
                 this.sound.play("shit_hit");
             },
         );
@@ -126,42 +150,26 @@ export class MainGame extends Scene {
 
     getEnemyCd() {
         const score = this.game.registry.get("score");
-        return Math.max(500, 2000 - score * 100);
+        return Math.max(200, 2000 - score * 100);
     }
 
-    gunShoot(time: number) {
-        if (this.shootGun.checkInCd(time)) return;
-        let angle: number = 0;
-        if (!this.enemys.enemyGroup.children.size) {
-            // 无敌人则随机发射
-            angle = Math.random() * 360;
-        } else {
-            // 有敌人则攻击最近的敌人
-            const children = this.enemys.enemyGroup.children.getArray();
-            const monkeyX = this.monkey.getX(),
-                monkeyY = this.monkey.getY();
-            children.sort((a, b) => {
-                const aXlen = a.body?.x - monkeyX,
-                    bXlen = b.body?.x - monkeyX;
-                const aYlen = a.body?.y - monkeyY,
-                    bYlen = b.body?.y - monkeyY;
-                const aLen = Math.pow(aXlen ** 2 + aYlen ** 2, 0.5),
-                    bLen = Math.pow(bXlen ** 2 + bYlen ** 2, 0.5);
-                return Math.abs(bLen - aLen);
-            });
-            angle = Math.atan2(
-                children[0].y - monkeyY,
-                children[0].x - monkeyX,
-            );
-        }
-
-        this.shootGun.shoot({
-            name: "shit",
-            x: this.monkey.getX(),
-            y: this.monkey.getY(),
-            angle,
-        });
-    }
+    // gunShoot(time: number) {
+    //     if (this.shootGun.checkInCd(time)) return;
+    //     let angle: number = 0;
+    //     if (!this.enemys.enemyGroup.children.size) {
+    //         // 无敌人则随机发射
+    //         angle = Math.random() * 360;
+    //     } else {
+    //         angle = getClosestOneAngleOfGroup(this.monkey.getX(),this.monkey.getY(),this.enemys.enemyGroup)
+    //     }
+    //
+    //     this.shootGun.shoot({
+    //         name: "shit",
+    //         x: this.monkey.getX(),
+    //         y: this.monkey.getY(),
+    //         angle,
+    //     });
+    // }
 
     changeScene(str: string) {
         this.scene.start(str);

@@ -15,7 +15,6 @@ export class GameOver extends Scene {
         this.renderTryBtn();
         this.renderHomeBtn();
         this.bindInputEvent();
-
         EventBus.emit("current-scene-ready", this);
     }
 

@@ -1,8 +1,7 @@
 import Group = Phaser.Physics.Arcade.Group;
-import GameObject = Phaser.GameObjects.GameObject;
-import { dogImgSize } from "../global/imgSize.ts";
 import { Bananas } from "./Banana.ts";
 import { Monkey } from "./Monkey.ts";
+import Sprite = Phaser.Physics.Arcade.Sprite;
 
 interface EnemyProps {
     hp: number;
@@ -14,7 +13,6 @@ interface EnemyOption {
     name?: string;
     x?: number;
     y?: number;
-    angle?: number;
 }
 
 const defProps: EnemyProps = {
@@ -36,7 +34,6 @@ export class Enemys {
         this.scene.physics.add.collider(this.enemyGroup, this.enemyGroup);
     }
 
-    // 创建敌人
     createEnemy(opt?: EnemyOption) {
         const randomAngle = 360 * Math.random(),
             len = 500 + 200 * Math.random(),
@@ -47,47 +44,43 @@ export class Enemys {
             name: Math.random() > 0.5 ? "dog" : "bat",
             x,
             y,
-            angle: randomAngle - 180,
             ...opt,
         };
-        // this.createEnemy();
-        new Enemy(this.enemyProps, option, this.enemyGroup, this.scene);
+
+        const enemy = new Enemy(
+            this.enemyProps,
+            option,
+            this.enemyGroup,
+            this.scene,
+        );
+        enemy.renderEnemy();
     }
 
-    AllTrack(x: number, y: number) {
-        this.enemyGroup.setVelocity(0, 0);
-
-        this.enemyGroup.children.getArray().forEach((child) => {
-            const angle = Math.atan2(
-                y - 30 - child.body?.y,
-                x - 30 - child.body?.x,
-            );
-            child.body?.setVelocity(
-                this.enemyProps.speed * Math.cos(angle),
-                this.enemyProps.speed * Math.sin(angle),
-            );
-        });
-    }
-}
-
-export class Dogs extends Enemys {
-    constructor(scene: Phaser.Scene) {
-        const dogProps = {
-            hp: 10,
-            atk: 1,
-            speed: 200,
-        };
-        super(scene, dogProps);
-    }
+    // AllTrack(x: number, y: number) {
+    //     this.enemyGroup.setVelocity(0, 0);
+    //
+    //     this.enemyGroup.children.getArray().forEach((child) => {
+    //         const angle = Math.atan2(
+    //             y - 30 - child.body?.y,
+    //             x - 30 - child.body?.x,
+    //         );
+    //         child.body?.setVelocity(
+    //             this.enemyProps.speed * Math.cos(angle),
+    //             this.enemyProps.speed * Math.sin(angle),
+    //         );
+    //     });
+    // }
 }
 
 class Enemy {
     hp: number;
     atk: number;
     speed: number;
+    props: EnemyProps;
     opt: EnemyOption;
-    gameObj: GameObject;
+    enemySprite: Sprite;
     scene: Phaser.Scene;
+    group: Group;
 
     constructor(
         props: EnemyProps,
@@ -98,26 +91,48 @@ class Enemy {
         this.hp = props.hp;
         this.atk = props.atk;
         this.speed = props.speed;
+        this.props = props;
         this.opt = opt;
         this.scene = scene;
+        this.group = group;
 
-        const { x, y, name, angle } = opt;
-        const enemy = group.create(x, y, name).setOrigin(0.5, 0.5);
-        this.gameObj = enemy;
+        // this.renderEnemy();
+    }
 
-        enemy.body.getHurt = this.getHurt.bind(this);
+    renderEnemy() {
+        const { x, y, name } = this.opt;
+        const sprite: Sprite = this.group
+            .create(x, y, name)
+            .setOrigin(0.5, 0.5);
+        this.enemySprite = sprite;
 
-        group.scene.physics.add.existing(enemy);
-        enemy.setCollideWorldBounds(true);
-        enemy.setVelocity(
-            this.speed * Math.cos(angle),
-            this.speed * Math.sin(angle),
-        );
+        this.group.scene.physics.add.existing(sprite);
+        sprite.setCollideWorldBounds(true);
+
+        sprite.getHurt = this.getHurt.bind(this);
+        sprite.props = this.props;
     }
 
     getHurt(value: number) {
+        console.log("hurt,hp:", this.hp);
         this.hp -= value;
         if (this.hp <= 0) this.die();
+        else this.blink();
+    }
+
+    blink() {
+        this.scene.tweens.add({
+            targets: this.enemySprite,
+            ease: "Linear",
+            yoyo: true,
+            alpha: 0,
+            duration: 200,
+            repeat: 2,
+            onComplete(tween, target) {
+                tween.destroy();
+                target[0].alpha = 1;
+            },
+        });
     }
 
     die() {
@@ -128,9 +143,14 @@ class Enemy {
             const isCreate = Math.random() > 0.5;
 
             if (isCreate) {
-                Bananas.instance.createBanana(this.gameObj.x, this.gameObj.y);
+                Bananas.instance.createBanana(
+                    this.enemySprite.x,
+                    this.enemySprite.y,
+                );
             }
         }
-        this.gameObj.destroy();
+        console.log("die");
+        // this.group.remove(this.enemySprite, true, true);
+        this.enemySprite.destroy(true);
     }
 }

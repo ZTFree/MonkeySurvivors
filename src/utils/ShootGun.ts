@@ -73,8 +73,8 @@ export class ShootGun {
     upgrade() {
         this.grade++;
         const g = this.grade - 1;
-        this.shootCd = Math.max(500, 1000 - g * 50);
-        this.shootSpeed = Math.min(1000, 600 + g * 40);
-        this.shootAtk = Math.min(20, 5 + g / 2);
+        this.shootCd = Math.max(500, 1000 - g * 100);
+        this.shootSpeed = Math.min(1000, 600 + g * 100);
+        this.shootAtk = Math.min(10, 5 + g);
     }
 }
